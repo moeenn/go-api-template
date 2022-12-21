@@ -1,0 +1,33 @@
+package auth
+
+import (
+	"app/core/application"
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+func TestLoginHandler(t *testing.T) {
+	app, err := application.Create()
+	if err != nil {
+		t.Errorf("application bootstrap failed: %v", err)
+	}
+
+	body := LoginForm{
+		Email:    "sample@site.com",
+		Password: "123_Apple",
+	}
+
+	var buf bytes.Buffer
+	json.NewEncoder(&buf).Encode(body)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/login", &buf)
+	app.Router.ServeHTTP(w, req)
+
+	if w.Code != 200 {
+		t.Errorf("unexpected status code: %d", w.Code)
+	}
+}
