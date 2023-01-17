@@ -1,4 +1,5 @@
-# go web api template
+# golang native server
+A simple web server created using golang's `net/http` package.
 
 ### Install dependencies
 ```bash
@@ -12,7 +13,7 @@ $ go run .
 
 ### Build for production
 ```bash
-$ go build .
+$ go build -o ./build
 ```
 
 ### Running tests

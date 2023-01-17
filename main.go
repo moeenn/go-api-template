@@ -1,21 +1,16 @@
 package main
 
 import (
-	"app/core/application"
-	"fmt"
-	"os"
+	"sandbox/pkg/routes"
+	"sandbox/pkg/server"
 )
 
 func main() {
-	app, err := application.Create()
-	if err != nil {
-		fmt.Printf("[error] %v\n", err)
-		os.Exit(1)
+	routes := []server.Route{
+		{Key: "GET /", Handler: routes.HomeHandler},
+		{Key: "POST /login", Handler: routes.LoginHandler},
 	}
 
-	/* wait until app shutdown to close db connection */
-	defer app.Singletons.Database.Disconnect()
-
-	/* spin up application web server */
-	app.Server.Start()
+	server := server.New(routes)
+	server.Run(":5000")
 }
