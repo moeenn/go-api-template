@@ -8,8 +8,9 @@ import (
 )
 
 type Context struct {
-	Writer  http.ResponseWriter
-	Request *http.Request
+	Writer     http.ResponseWriter
+	Request    *http.Request
+	StatusCode int
 }
 
 func (ctx Context) Body(target interface{}) error {
@@ -30,6 +31,7 @@ func (ctx Context) JSON(statusCode int, data interface{}) {
 	json.NewEncoder(ctx.Writer).Encode(data)
 }
 
-func (ctx Context) Status(statusCode int) {
+func (ctx *Context) Status(statusCode int) {
+	ctx.StatusCode = statusCode
 	ctx.Writer.WriteHeader(statusCode)
 }
