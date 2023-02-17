@@ -27,7 +27,7 @@ func Router(routes map[string]RouteHandler, logger *log.Logger) http.HandlerFunc
 
 		handler(ctx)
 
-		// TODO: status code is not printing properly
+		// TODO: StatusCode not printing properly
 		logger.Log(log.INFO, fmt.Sprintf("%s - %d", requestKey, ctx.StatusCode))
 	}
 }

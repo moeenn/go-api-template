@@ -13,6 +13,11 @@ type Context struct {
 	StatusCode int
 }
 
+func (ctx *Context) Status(statusCode int) {
+	ctx.StatusCode = statusCode
+	ctx.Writer.WriteHeader(statusCode)
+}
+
 func (ctx Context) Body(target interface{}) error {
 	if err := json.NewDecoder(ctx.Request.Body).Decode(target); err != nil {
 		return err
@@ -27,11 +32,6 @@ func (ctx Context) Body(target interface{}) error {
 
 func (ctx Context) JSON(statusCode int, data interface{}) {
 	ctx.Writer.Header().Add("Content-type", "application/json")
-	ctx.Writer.WriteHeader(statusCode)
+	ctx.Status(statusCode)
 	json.NewEncoder(ctx.Writer).Encode(data)
-}
-
-func (ctx *Context) Status(statusCode int) {
-	ctx.StatusCode = statusCode
-	ctx.Writer.WriteHeader(statusCode)
 }
