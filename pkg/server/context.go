@@ -30,8 +30,10 @@ func (ctx Context) Body(target interface{}) error {
 	return nil
 }
 
-func (ctx Context) JSON(statusCode int, data interface{}) {
+func (ctx Context) JSON(statusCode int, data interface{}) error {
 	ctx.Writer.Header().Add("Content-type", "application/json")
 	ctx.Status(statusCode)
 	json.NewEncoder(ctx.Writer).Encode(data)
+
+	return nil
 }

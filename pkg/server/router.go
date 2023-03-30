@@ -6,7 +6,7 @@ import (
 	"sandbox/pkg/log"
 )
 
-type RouteHandler func(ctx *Context)
+type RouteHandler func(ctx *Context) error
 
 type Route struct {
 	Key     string
@@ -16,7 +16,7 @@ type Route struct {
 func Router(routes map[string]RouteHandler, logger *log.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestKey := fmt.Sprintf("%s %s", r.Method, r.URL)
-		ctx := &Context{Writer: w, Request: r}
+		ctx := &Context{Writer: w, Request: r, StatusCode: http.StatusOK}
 
 		handler := routes[requestKey]
 		if handler == nil {
@@ -25,9 +25,11 @@ func Router(routes map[string]RouteHandler, logger *log.Logger) http.HandlerFunc
 			return
 		}
 
-		handler(ctx)
+		if err := handler(ctx); err != nil {
+			ctx.Status(http.StatusInternalServerError)
+			logger.Log(log.ERROR, err.Error())
+		}
 
-		// TODO: StatusCode not printing properly
 		logger.Log(log.INFO, fmt.Sprintf("%s - %d", requestKey, ctx.StatusCode))
 	}
 }

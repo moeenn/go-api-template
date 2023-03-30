@@ -1,8 +1,8 @@
 package main
 
 import (
+	"sandbox/app/routes"
 	"sandbox/pkg/log"
-	"sandbox/pkg/routes"
 	"sandbox/pkg/server"
 )
 
@@ -12,12 +12,6 @@ const (
 
 func main() {
 	logger := log.New()
-
-	routes := []server.Route{
-		{Key: "GET /", Handler: routes.HomeHandler},
-		{Key: "POST /login", Handler: routes.LoginHandler},
-	}
-
-	server := server.New(routes, logger)
+	server := server.New(routes.Routes, logger)
 	server.Run(PORT)
 }
