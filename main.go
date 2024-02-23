@@ -10,6 +10,12 @@ import (
 	"web/internal/server"
 )
 
+/*
+# TODO
+- [ ] Implement Repos (i.e. containers of db table operations)
+- [ ] Implement Services (i.e. containers of business logic)
+*/
+
 func main() {
 	config, err := config.NewConfig()
 	if err != nil {
