@@ -20,8 +20,8 @@ type JWTWithExpiry struct {
 }
 
 type JWTUser struct {
-	Id   string
-	Role string
+	Id   string `json:"id"`
+	Role string `json:"role"`
 }
 
 /* create JWT claim and sign using JWT secret */
@@ -75,28 +75,3 @@ func ValidateJWT(secret string, tokenString string) (JWTUser, error) {
 		Role: role,
 	}, nil
 }
-
-/* jwt middleware requires config, this function creates that config object */
-/*
-func NewJWTConfig(secret string) echojwt.Config {
-	return echojwt.Config{
-		NewClaimsFunc: func(c echo.Context) jwt.Claims {
-			return new(JWTCustomClaims)
-		},
-		SigningKey: []byte(secret),
-	}
-}
-*/
-
-/* extract the current (logged-in) user from request context */
-/*
-func CurrentUser(c echo.Context) JWTUser {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*JWTCustomClaims)
-
-	return JWTUser{
-		Id:   claims.Id,
-		Role: claims.Role,
-	}
-}
-*/
