@@ -10,8 +10,8 @@ import (
 const JWT_EXPIRY_HOURS = 24
 
 var (
-	INVALID_EXPIRED_ERR = errors.New("invalid or expired JWT provided")
-	INVALID_CLAIMS      = errors.New("failed to parse JWT claims")
+	invalidExpiredErr = errors.New("invalid or expired JWT provided")
+	invalidClaimsErr  = errors.New("failed to parse JWT claims")
 )
 
 type JWTWithExpiry struct {
@@ -55,7 +55,7 @@ func ValidateJWT(secret string, tokenString string) (JWTUser, error) {
 	}
 
 	if !parsed.Valid {
-		return JWTUser{}, INVALID_EXPIRED_ERR
+		return JWTUser{}, invalidExpiredErr
 	}
 
 	id, idErr := parsed.Claims.GetSubject()
@@ -63,11 +63,11 @@ func ValidateJWT(secret string, tokenString string) (JWTUser, error) {
 	expiry, expErr := parsed.Claims.GetExpirationTime()
 
 	if idErr != nil || roleErr != nil || expErr != nil {
-		return JWTUser{}, INVALID_CLAIMS
+		return JWTUser{}, invalidClaimsErr
 	}
 
 	if expiry.Before(time.Now()) {
-		return JWTUser{}, INVALID_EXPIRED_ERR
+		return JWTUser{}, invalidExpiredErr
 	}
 
 	return JWTUser{
