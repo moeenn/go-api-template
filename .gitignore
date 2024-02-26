@@ -1,1 +1,5 @@
 web
+.env
+.env.prod
+.DS_Store
+node_modules/

@@ -33,7 +33,7 @@ func main() {
 	authController.RegisterRoutes(mux)
 
 	// register catch-all handlers
-	mux.HandleFunc("/", server.NotFoundHandler)
+	mux.HandleFunc("/api/", server.APINotFoundHandler)
 
 	// start the web server process
 	logger.Info("starting web server", "address", config.Server.Address())

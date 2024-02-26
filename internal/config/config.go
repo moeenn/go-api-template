@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"time"
+	"web/internal/helpers/env"
 )
 
 type ServerConfig struct {
@@ -14,7 +16,8 @@ func (c *ServerConfig) Address() string {
 }
 
 type AuthConfig struct {
-	JWTSecret string
+	JWTSecret      string
+	JWTExpiryHours time.Duration
 }
 
 type Config struct {
@@ -23,13 +26,19 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
+	jwtSecret, err := env.Env("JWT_SECRET")
+	if err != nil {
+		return &Config{}, err
+	}
+
 	config := &Config{
 		Server: ServerConfig{
 			Host: "0.0.0.0",
 			Port: 5000,
 		},
 		Auth: AuthConfig{
-			JWTSecret: "abc123123123", // TODO: read from env
+			JWTSecret:      jwtSecret,
+			JWTExpiryHours: 24,
 		},
 	}
 

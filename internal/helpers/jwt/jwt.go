@@ -7,8 +7,6 @@ import (
 	jwtlib "github.com/golang-jwt/jwt/v5"
 )
 
-const JWT_EXPIRY_HOURS = 24
-
 var (
 	invalidExpiredErr = errors.New("invalid or expired JWT provided")
 	invalidClaimsErr  = errors.New("failed to parse JWT claims")
@@ -25,8 +23,8 @@ type JWTUser struct {
 }
 
 /* create JWT claim and sign using JWT secret */
-func NewJWT(secret string, user JWTUser) (JWTWithExpiry, error) {
-	exp := time.Now().Add(time.Hour * JWT_EXPIRY_HOURS)
+func NewJWT(secret string, expiryHours time.Duration, user JWTUser) (JWTWithExpiry, error) {
+	exp := time.Now().Add(time.Hour * expiryHours)
 	claims := &jwtlib.RegisteredClaims{
 		Subject:   user.Id,
 		Issuer:    user.Role,

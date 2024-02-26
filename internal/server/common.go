@@ -5,6 +5,6 @@ import (
 	"web/internal/helpers/response"
 )
 
-func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
+func APINotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	response.SendErr(w, http.StatusNotFound, "not found")
 }
