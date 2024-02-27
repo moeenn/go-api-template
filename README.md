@@ -10,10 +10,11 @@ A Web server boilerplate created using Golang's `net/http` package.
 $ make setup
 
 # generate jwt secret token (store inside .env file)
-$ make gensecret
+$ make secret
 ```
 
 ### Using application
+
 ```bash
 # run in development mode
 $ make dev
@@ -23,4 +24,17 @@ $ make build
 
 # run in production
 $ make prod
+```
+
+### Database migrations
+
+```bash
+# create a new migration
+$ make name=migration_name new_migration
+
+# run pending migrations
+$ make db_migrate
+
+# drop everything and clear database
+$ make db_drop
 ```
