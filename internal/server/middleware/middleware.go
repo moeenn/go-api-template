@@ -10,6 +10,10 @@ import (
 	"web/internal/helpers/response"
 )
 
+const (
+	BEARER_TOKEN_PREFIX = "Bearer "
+)
+
 // extract bearer token value from request authorization header
 func parseBearerToken(r *http.Request) (string, error) {
 	header := r.Header.Get("Authorization")
@@ -17,11 +21,11 @@ func parseBearerToken(r *http.Request) (string, error) {
 		return header, errors.New("missing authorization bearer token")
 	}
 
-	if !strings.HasPrefix(header, "Bearer ") {
+	if !strings.HasPrefix(header, BEARER_TOKEN_PREFIX) {
 		return "", errors.New("only bearer tokens are supported for authorization")
 	}
 
-	token := strings.Replace(header, "Bearer ", "", 1)
+	token := strings.Replace(header, BEARER_TOKEN_PREFIX, "", 1)
 	if len(token) == 0 {
 		return "", errors.New("please provide a bearer token for authorization")
 	}

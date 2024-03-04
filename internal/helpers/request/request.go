@@ -6,7 +6,7 @@ import (
 	"web/internal/helpers/jwt"
 )
 
-var authError = errors.New("please login to continue")
+var errAuthRequired = errors.New("please login to continue")
 
 const (
 	USER_ID_CTX_KEY   = "user_id"
@@ -16,12 +16,12 @@ const (
 func CurrentUser(r *http.Request) (jwt.JWTUser, error) {
 	userId, ok := r.Context().Value(USER_ID_CTX_KEY).(string)
 	if !ok {
-		return jwt.JWTUser{}, authError
+		return jwt.JWTUser{}, errAuthRequired
 	}
 
 	userRole, ok := r.Context().Value(USER_ROLE_CTX_KEY).(string)
 	if !ok {
-		return jwt.JWTUser{}, authError
+		return jwt.JWTUser{}, errAuthRequired
 	}
 
 	user := jwt.JWTUser{

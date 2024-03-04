@@ -1,12 +1,17 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 	"web/internal/config"
 	"web/internal/helpers/jwt"
 	"web/internal/helpers/request"
 	"web/internal/helpers/response"
 	"web/internal/server/middleware"
+)
+
+var (
+	ErrAuthRequired = errors.New("please login to continue")
 )
 
 type AuthController struct {
@@ -52,7 +57,7 @@ func (c *AuthController) GetUser(w http.ResponseWriter, r *http.Request) {
 func (c *AuthController) IssueRefreshToken(w http.ResponseWriter, r *http.Request) {
 	user, err := request.CurrentUser(r)
 	if err != nil {
-		response.SendErr(w, http.StatusUnauthorized, "please login to continue")
+		response.SendErr(w, http.StatusUnauthorized, ErrAuthRequired.Error())
 		return
 	}
 
