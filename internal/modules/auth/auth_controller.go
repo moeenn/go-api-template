@@ -32,13 +32,13 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		Role: "ADMIN",
 	}
 
-	token, err := jwt.NewExpiringJWT(c.Config.Auth.JWTSecret, c.Config.Auth.JWTExpiryHours, user, "ACCESS")
+	authPayload, err := NewLoginAuthTokenPayload(c.Config.Auth.JWTSecret, c.Config.Auth.JWTExpiryHours, user)
 	if err != nil {
 		response.SendErr(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	response.SendOk(w, token)
+	response.SendOk(w, authPayload)
 }
 
 // return details of the currently logged-in user
@@ -63,7 +63,7 @@ func (c *AuthController) IssueRefreshToken(w http.ResponseWriter, r *http.Reques
 
 	// TODO: perform checks to see if user is still valid
 
-	token, err := jwt.NewExpiringJWT(c.Config.Auth.JWTSecret, c.Config.Auth.JWTExpiryHours, user, "ACCESS")
+	token, err := jwt.NewExpiringJWT(c.Config.Auth.JWTSecret, c.Config.Auth.JWTExpiryHours, user, SCOPE_ACCESS)
 	if err != nil {
 		response.SendErr(w, http.StatusUnauthorized, "cannot issue refresh token")
 		return
