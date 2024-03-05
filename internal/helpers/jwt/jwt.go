@@ -29,10 +29,12 @@ type JWTUser struct {
 
 /* create JWT claim and sign using JWT secret */
 func NewExpiringJWT(secret string, expiryHours time.Duration, user JWTUser, scope string) (JWTWithExpiry, error) {
-	exp := time.Now().Add(time.Hour * expiryHours)
+	exp := time.Now().UTC().Add(expiryHours)
+	expTimestamp := exp.UnixNano() / 1e6 // get JS equivalient timestamp
+
 	claims := &jwtlib.MapClaims{
 		"sub":   user.Id,
-		"exp":   jwtlib.NewNumericDate(exp),
+		"exp":   expTimestamp,
 		"role":  user.Role,
 		"scope": scope,
 	}
@@ -44,7 +46,7 @@ func NewExpiringJWT(secret string, expiryHours time.Duration, user JWTUser, scop
 
 	return JWTWithExpiry{
 		Token:  t,
-		Expiry: exp.Unix(),
+		Expiry: expTimestamp,
 	}, nil
 }
 
