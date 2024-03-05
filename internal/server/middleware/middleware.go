@@ -42,7 +42,7 @@ func LoggedInMiddleware(jwtSecret string, next http.HandlerFunc) http.HandlerFun
 			return
 		}
 
-		user, err := jwt.ValidateJWT(jwtSecret, token)
+		user, err := jwt.ValidateJWT(jwtSecret, token, true, "ACCESS")
 		if err != nil {
 			response.SendErr(w, http.StatusUnauthorized, err.Error())
 			return

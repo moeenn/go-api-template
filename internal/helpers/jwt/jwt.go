@@ -10,7 +10,12 @@ import (
 var (
 	errInvalidExpired = errors.New("invalid or expired JWT provided")
 	errInvalidClaims  = errors.New("failed to parse JWT claims")
+	errInvalidScope   = errors.New("JWT scope mismatch")
 )
+
+type JWTWithoutExpiry struct {
+	Token string `json:"token"`
+}
 
 type JWTWithExpiry struct {
 	Token  string `json:"token"`
@@ -23,12 +28,13 @@ type JWTUser struct {
 }
 
 /* create JWT claim and sign using JWT secret */
-func NewJWT(secret string, expiryHours time.Duration, user JWTUser) (JWTWithExpiry, error) {
+func NewExpiringJWT(secret string, expiryHours time.Duration, user JWTUser, scope string) (JWTWithExpiry, error) {
 	exp := time.Now().Add(time.Hour * expiryHours)
-	claims := &jwtlib.RegisteredClaims{
-		Subject:   user.Id,
-		Issuer:    user.Role,
-		ExpiresAt: jwtlib.NewNumericDate(exp),
+	claims := &jwtlib.MapClaims{
+		"sub":   user.Id,
+		"exp":   jwtlib.NewNumericDate(exp),
+		"role":  user.Role,
+		"scope": scope,
 	}
 
 	t, err := jwtlib.NewWithClaims(jwtlib.SigningMethodHS256, claims).SignedString([]byte(secret))
@@ -42,30 +48,74 @@ func NewJWT(secret string, expiryHours time.Duration, user JWTUser) (JWTWithExpi
 	}, nil
 }
 
+func NewNonExpiringJWT(secret string, user JWTUser, scope string) (JWTWithoutExpiry, error) {
+	claims := &jwtlib.MapClaims{
+		"sub":   user.Id,
+		"role":  user.Role,
+		"scope": scope,
+	}
+
+	t, err := jwtlib.NewWithClaims(jwtlib.SigningMethodHS256, claims).SignedString([]byte(secret))
+	if err != nil {
+		return JWTWithoutExpiry{}, err
+	}
+
+	return JWTWithoutExpiry{t}, nil
+}
+
 /* validate token and extract custom claims */
-func ValidateJWT(secret string, tokenString string) (JWTUser, error) {
+func ValidateJWT(secret string, tokenString string, isExpiring bool, scope string) (JWTUser, error) {
+	var nullUser JWTUser
+
 	parsed, err := jwtlib.Parse(tokenString, func(token *jwtlib.Token) (any, error) {
 		return []byte(secret), nil
 	})
 
 	if err != nil {
-		return JWTUser{}, err
+		return nullUser, err
 	}
 
 	if !parsed.Valid {
-		return JWTUser{}, errInvalidExpired
+		return nullUser, errInvalidExpired
 	}
 
 	id, idErr := parsed.Claims.GetSubject()
-	role, roleErr := parsed.Claims.GetIssuer()
-	expiry, expErr := parsed.Claims.GetExpirationTime()
-
-	if idErr != nil || roleErr != nil || expErr != nil {
-		return JWTUser{}, errInvalidClaims
+	if idErr != nil {
+		return nullUser, errInvalidClaims
 	}
 
-	if expiry.Before(time.Now()) {
-		return JWTUser{}, errInvalidExpired
+	claims, ok := parsed.Claims.(jwtlib.MapClaims)
+	if !ok {
+		return nullUser, errInvalidClaims
+	}
+
+	roleRaw, roleRawErr := claims["role"]
+	scopeRaw, scopeRawErr := claims["scope"]
+
+	if !roleRawErr || !scopeRawErr {
+		return nullUser, errInvalidClaims
+	}
+
+	role, roleOk := roleRaw.(string)
+	gotScope, gotScopeOk := scopeRaw.(string)
+
+	if !roleOk || !gotScopeOk {
+		return nullUser, errInvalidClaims
+	}
+
+	if gotScope != scope {
+		return nullUser, errInvalidScope
+	}
+
+	if isExpiring {
+		expiry, expErr := parsed.Claims.GetExpirationTime()
+		if expErr != nil {
+			return nullUser, errInvalidClaims
+		}
+
+		if expiry.Before(time.Now()) {
+			return nullUser, errInvalidExpired
+		}
 	}
 
 	return JWTUser{
