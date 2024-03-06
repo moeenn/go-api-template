@@ -48,8 +48,8 @@ func LoggedInMiddleware(jwtSecret string, next http.HandlerFunc) http.HandlerFun
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), request.USER_ID_CTX_KEY, user.Id)
-		ctx = context.WithValue(ctx, request.USER_ROLE_CTX_KEY, user.Role)
+		ctx := context.WithValue(r.Context(), request.UserIdCtxKey{}, user.Id)
+		ctx = context.WithValue(ctx, request.UserRoleCtxKey{}, user.Role)
 		next(w, r.WithContext(ctx))
 	}
 }

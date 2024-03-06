@@ -8,18 +8,18 @@ import (
 
 var errAuthRequired = errors.New("please login to continue")
 
-const (
-	USER_ID_CTX_KEY   = "user_id"
-	USER_ROLE_CTX_KEY = "user_role"
+type (
+	UserIdCtxKey   struct{}
+	UserRoleCtxKey struct{}
 )
 
 func CurrentUser(r *http.Request) (jwt.JWTUser, error) {
-	userId, ok := r.Context().Value(USER_ID_CTX_KEY).(string)
+	userId, ok := r.Context().Value(UserIdCtxKey{}).(string)
 	if !ok {
 		return jwt.JWTUser{}, errAuthRequired
 	}
 
-	userRole, ok := r.Context().Value(USER_ROLE_CTX_KEY).(string)
+	userRole, ok := r.Context().Value(UserRoleCtxKey{}).(string)
 	if !ok {
 		return jwt.JWTUser{}, errAuthRequired
 	}
