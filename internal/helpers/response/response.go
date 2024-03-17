@@ -13,7 +13,7 @@ type apiOkResponse[T any] struct {
 type apiErrorResponse struct {
 	Success    bool   `json:"success"`
 	Error      string `json:"error"`
-	StatusCode int    `json:"statusCode"`
+	StatusCode int    `json:"status_code"`
 }
 
 func NewErrorResponse(statusCode int, error string) apiErrorResponse {
