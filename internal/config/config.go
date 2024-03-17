@@ -38,7 +38,7 @@ func NewConfig() (*Config, error) {
 		},
 		Auth: AuthConfig{
 			JWTSecret:      jwtSecret,
-			JWTExpiryHours: 24,
+			JWTExpiryHours: time.Hour,
 		},
 	}
 

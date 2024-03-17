@@ -19,8 +19,7 @@ import (
 func main() {
 	config, err := config.NewConfig()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
-		os.Exit(1)
+		exit(err)
 	}
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -38,7 +37,11 @@ func main() {
 	// start the web server process
 	logger.Info("starting web server", "address", config.Server.Address())
 	if err := http.ListenAndServe(config.Server.Address(), mux); err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
-		os.Exit(1)
+		exit(err)
 	}
+}
+
+func exit(err error) {
+	fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
+	os.Exit(1)
 }

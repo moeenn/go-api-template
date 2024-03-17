@@ -33,10 +33,10 @@ func NewOkResponse[T any](data T) apiOkResponse[T] {
 
 func SendOk[T any](w http.ResponseWriter, data T) {
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(NewOkResponse(data))
+	_ = json.NewEncoder(w).Encode(NewOkResponse(data))
 }
 
 func SendErr(w http.ResponseWriter, statusCode int, error string) {
 	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(NewErrorResponse(statusCode, error))
+	_ = json.NewEncoder(w).Encode(NewErrorResponse(statusCode, error))
 }

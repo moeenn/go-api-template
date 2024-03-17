@@ -29,3 +29,6 @@ build:
 
 prod:
 	./${BINARY}
+
+lint:
+	staticcheck ./... && errcheck ./... && goconst ./...

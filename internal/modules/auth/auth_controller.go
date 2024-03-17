@@ -1,12 +1,17 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 	"web/internal/config"
 	"web/internal/helpers/jwt"
 	"web/internal/helpers/request"
 	"web/internal/helpers/response"
 	"web/internal/server/middleware"
+)
+
+var (
+	ErrAuthRequired = errors.New("please login to continue")
 )
 
 type AuthController struct {
@@ -27,13 +32,13 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		Role: "ADMIN",
 	}
 
-	token, err := jwt.NewJWT(c.Config.Auth.JWTSecret, c.Config.Auth.JWTExpiryHours, user)
+	authPayload, err := NewLoginAuthTokenPayload(c.Config.Auth.JWTSecret, c.Config.Auth.JWTExpiryHours, user)
 	if err != nil {
 		response.SendErr(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	response.SendOk(w, token)
+	response.SendOk(w, authPayload)
 }
 
 // return details of the currently logged-in user
@@ -52,13 +57,13 @@ func (c *AuthController) GetUser(w http.ResponseWriter, r *http.Request) {
 func (c *AuthController) IssueRefreshToken(w http.ResponseWriter, r *http.Request) {
 	user, err := request.CurrentUser(r)
 	if err != nil {
-		response.SendErr(w, http.StatusUnauthorized, "please login to continue")
+		response.SendErr(w, http.StatusUnauthorized, ErrAuthRequired.Error())
 		return
 	}
 
 	// TODO: perform checks to see if user is still valid
 
-	token, err := jwt.NewJWT(c.Config.Auth.JWTSecret, c.Config.Auth.JWTExpiryHours, user)
+	token, err := jwt.NewExpiringJWT(c.Config.Auth.JWTSecret, c.Config.Auth.JWTExpiryHours, user, SCOPE_ACCESS)
 	if err != nil {
 		response.SendErr(w, http.StatusUnauthorized, "cannot issue refresh token")
 		return
