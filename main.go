@@ -8,21 +8,34 @@ import (
 	"web/internal/config"
 	"web/internal/modules/auth"
 	"web/internal/server"
+
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
-/*
-# TODO
-- [ ] Implement Repos (i.e. containers of db table operations)
-- [ ] Implement Services (i.e. containers of business logic)
-*/
-
 func main() {
+	// load application configs and variables
 	config, err := config.NewConfig()
 	if err != nil {
 		exit(err)
 	}
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
+	// init and test database connection
+	db, err := sqlx.Open("postgres", config.Database.ConnectionString)
+	if err != nil {
+		exit(fmt.Errorf("failed to open database connection"))
+	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			logger.Error("failed to close database connection", "error", err.Error())
+		}
+	}()
+
+	if err := db.Ping(); err != nil {
+		exit(fmt.Errorf("failed to communicate with the database"))
+	}
 
 	// instantiate all controllers here
 	authController := auth.AuthController{Config: config}

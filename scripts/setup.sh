@@ -6,7 +6,7 @@ go mod tidy
 # linting dependencies
 go install honnef.co/go/tools/cmd/staticcheck@latest
 go install github.com/kisielk/errcheck@latest
-go install github.com/jgautheron/goconst/cmd/goconst@latest
+# go install github.com/jgautheron/goconst/cmd/goconst@latest
 
 # list out installation commands for binary dependencies
 go install -v github.com/joho/godotenv/cmd/godotenv@latest
