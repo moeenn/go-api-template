@@ -13,11 +13,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func main() {
+func run() error {
 	// load application configs and variables
 	config, err := config.NewConfig()
 	if err != nil {
-		exit(err)
+		return err
 	}
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -25,7 +25,7 @@ func main() {
 	// init and test database connection
 	db, err := sqlx.Open("postgres", config.Database.ConnectionString)
 	if err != nil {
-		exit(fmt.Errorf("failed to open database connection"))
+		return fmt.Errorf("failed to open database connection: %s", err.Error())
 	}
 	defer func() {
 		if err := db.Close(); err != nil {
@@ -34,7 +34,7 @@ func main() {
 	}()
 
 	if err := db.Ping(); err != nil {
-		exit(fmt.Errorf("failed to communicate with the database"))
+		return fmt.Errorf("failed to communicate with the database: %s", err.Error())
 	}
 
 	// instantiate all controllers here
@@ -50,11 +50,15 @@ func main() {
 	// start the web server process
 	logger.Info("starting web server", "address", config.Server.Address())
 	if err := http.ListenAndServe(config.Server.Address(), mux); err != nil {
-		exit(err)
+		return err
 	}
+
+	return nil
 }
 
-func exit(err error) {
-	fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
-	os.Exit(1)
+func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %s\n", err.Error())
+		os.Exit(1)
+	}
 }

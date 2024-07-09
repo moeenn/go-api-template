@@ -5,7 +5,6 @@ MIGRATIONS_PATH = migrations
 include ${ENV}
 
 setup:
-	@go mod tidy
 	@sh ./scripts/setup.sh
 
 secret:
